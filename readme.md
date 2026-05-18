@@ -121,12 +121,12 @@ clause-lang/
 - Interrupt vector table at fixed location (e.g., `0x0010`)
 
 ### Control Unit: Hardwired (`hw`)
-- Decoder directly generates control signals (no microcode ROM)
+- Decoder directly generates control signals
 - Simpler to implement and debug
 
 ### Simulation accuracy: Tick (`tick`)
 - CPU state can be inspected after each clock cycle
-- Useful for debugging pipeline/cache effects (though pipeline is not in my variant – cache is)
+- Useful for debugging cache effects
 
 ### Machine code: Binary (`binary`)
 - Real binary files (not text 0/1)
@@ -162,14 +162,4 @@ clause-lang/
 ### Requirements
 - Java 21
 - Clojure CLI (or `lein`)
-
-### Build & Run
-```bash
-# Compile a Lisp program to binary
-clj -M -m clause-lang.compile examples/prob1.lisp -o prob1.bin
-
-# Run binary in emulator with input (if any)
-clj -M -m clause-lang.run prob1.bin --trace trace.log
-
-# Run golden tests
-clj -M -m clause-lang.test-runner
+- Faith in God and this project 🙏🏻
