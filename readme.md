@@ -39,35 +39,15 @@ clause-lang/
 ├── src/
 │ │
 │ ├── compiler/ # Lisp → machine code translator
-│ │ ├── parser.clj # S‑expression parser
-│ │ ├── ast.clj # AST definitions
-│ │ ├── codegen.clj # Machine code generation
-│ │ └── utils.clj # Helper utilities
 │ │
 │ ├── vm/ # Processor model
-│ │ ├── cpu.clj # Main CPU loop (tick‑accurate)
-│ │ ├── alu.clj # ALU operations
-│ │ ├── registers.clj # Register file (RISC)
-│ │ ├── memory.clj # Neumann memory (code + data)
-│ │ ├── cache.clj # Data cache implementation
-│ │ ├── trap.clj # Trap / interrupt handling
-│ │ ├── io.clj # Memory‑mapped I/O + buffers
-│ │ └── decoder.clj # Instruction decoder
+│ │ ├── opcodes.clj # CPU operation codes
+│ │ └── constants.clj # Memory addresses, sizes, timings
 │ │
 │ └── cli/ # Command‑line interfaces
-│   ├── compile.clj # Compiler entry point
-│   └── run.clj # Emulator entry point
 │
 ├── tests/
-│ │
 │ ├── golden/ # Golden tests
-│ │ ├── hello # "Hello, World!" test
-│ │ ├── cat # Echo / cat test
-│ │ ├── hello_name # Interactive name greeting
-│ │ ├── sort # Sorting algorithm test
-│ │ ├── prob1 # Euler Problem #1
-│ │ └── cache_demo # Cache performance demo
-│ │
 │ └── test_runner.clj # Test harness / runner
 │
 ├── examples/ # Example Lisp programs
