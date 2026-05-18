@@ -1,4 +1,4 @@
-(ns clause-lang.core)
+(ns core)
 
 (defn init
   "Basic function after creating project"

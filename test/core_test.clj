@@ -1,4 +1,4 @@
-(ns clause-lang.core-test
+(ns core-test
   (:require [clojure.test :refer :all]
             [clause-lang.core :refer :all]))
 
