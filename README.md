@@ -1,22 +1,157 @@
 # clause-lang
 
-A Clojure based project - realization for Laboratory work 4 into ITMO Computer System Architecture.
+Clojure-based educational processor, assembler, and emulator for ITMO Computer Architecture course (Lab 4).
 
-## Usage
+**Variant:** `lisp | risc | neum | hw | tick | binary | trap | mem | cstr | prob1 | cache`
 
-Nothing yet :3
+## Author
+- **Name:** Фокин Владимир | Fokin Vladimir
+- **Group:** P3223
 
-## License
+## Overview
 
-Copyright © 2026 FIXME
+This project implements a complete computing system from scratch:
+- **High‑level language:** a Lisp dialect (S-expressions)
+- **Translator (Compiler):** Lisp → RISC‑like binary machine code
+- **Processor model:** tick‑accurate, hardware‑controlled (hardwired), with a data cache
+- **Memory model:** Neumann architecture (shared code/data), memory‑mapped I/O
+- **I/O model:** trap‑based interrupts
+- **String representation:** C‑style null‑terminated strings (`cstr`)
+- **Target algorithm:** Project Euler Problem 1 (Multiples of 3 or 5)
 
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-https://www.eclipse.org/legal/epl-2.0.
 
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
+## Features
+
+- RISC instruction set with fixed‑length instructions
+- Binary machine code output
+- Tick‑accurate simulation (can be paused after any tick)
+- Data cache with configurable latency (cache = 1 tick, RAM = 10 ticks)
+- Trap‑handling for character input/output
+- Memory‑mapped I/O devices
+- Golden tests for all required algorithms
+- CI with linting and formatting (ruff/mypy equivalent for Clojure: `cljstyle`, `clj-kondo`)
+
+## Project Structure
+
+clause-lang/
+├── src/
+│ ├── compiler/ # Lisp → machine code translator
+│ │ ├── parser.clj # S‑expression parser
+│ │ ├── ast.clj # AST definitions
+│ │ ├── codegen.clj # Machine code generation
+│ │ └── utils.clj
+│ ├── vm/ # Processor model
+│ │ ├── cpu.clj # Main CPU loop (tick‑accurate)
+│ │ ├── alu.clj # ALU operations
+│ │ ├── registers.clj # Register file (RISC)
+│ │ ├── memory.clj # Neumann memory (code + data)
+│ │ ├── cache.clj # Data cache implementation
+│ │ ├── trap.clj # Trap / interrupt handling
+│ │ ├── io.clj # Memory‑mapped I/O + character buffers
+│ │ └── decoder.clj # Instruction decoder
+│ └── cli/ # Command‑line interfaces
+│ ├── compile.clj # Compiler entry point
+│ └── run.clj # Emulator entry point
+├── tests/
+│ ├── golden/ # Golden tests (input + expected output + trace)
+│ │ ├── hello/ # hello world
+│ │ ├── cat/ # cat (echo)
+│ │ ├── hello_name/ # interactive greeting
+│ │ ├── sort/ # sorting demo
+│ │ ├── prob1/ # Euler problem 1 (variant)
+│ │ └── cache_demo/ # cache performance demonstration
+│ └── test_runner.clj
+├── examples/ # Example Lisp programs
+├── .github/workflows/ # CI configuration
+├── README.md
+└── project.clj # Clojure project file (deps, build)
+
+## Implementation Status
+
+| Module                       | Status         | Notes                                                                 |
+|------------------------------|----------------|-----------------------------------------------------------------------|
+| **Language (Lisp dialect)**  | 🟡 In progress | S‑expressions, `if`, `defn`, `loop/recur`, `print`, `read`            |
+| **Translator (Compiler)**    | 🟡 In progress | Three‑pass: parse → AST → linearize → binary emit                     |
+| **Instruction Set (RISC)**   | 🔲 Planned     | 16 fixed‑length instructions (add, sub, lw, sw, beq, jal, trap, etc.) |
+| **Processor Model (tick)**   | 🔲 Planned     | Cycle‑accurate main loop, state exposed after every tick              |
+| **Control Unit (hardwired)** | 🔲 Planned     | Decoder + hardwired control signals                                   |
+| **Memory (neum)**            | 🔲 Planned     | Shared 64K words (code + data)                                        |
+| **Cache**                    | 🔲 Planned     | Direct‑mapped, 8 lines, LRU, 1‑tick hit, 10‑tick miss                 |
+| **Trap I/O**                 | 🔲 Planned     | Interrupt vector table, `trap` instruction, interrupt handler         |
+| **Memory‑mapped I/O**        | 🔲 Planned     | Input / output mapped to fixed addresses (e.g., `0xFF00`, `0xFF01`)   |
+| **C strings (cstr)**         | 🔲 Planned     | Null‑terminated string literals in data section                       |
+| **Golden tests**             | 🔲 Planned     | 6 algorithms (hello, cat, hello_name, sort, prob1, cache_demo)        |
+| **CI (lint + test)**         | 🔲 Planned     | GitHub Actions + `cljstyle` + `clj‑kondo` + golden tests              |
+
+## Key Design Decisions (Variant Justification)
+
+### Language: Lisp dialect
+- Everything is an expression (no distinction between statements/expressions)
+- Supports recursive functions (tail‑call optimization not required)
+- `if` can be used anywhere: `(print (if (= x 1) "one" "other"))`
+- Minimal built‑ins: `+`, `-`, `*`, `/`, `=`, `<`, `>`, `print`, `read`
+
+### Architecture: RISC
+- 16 general‑purpose registers (`r0` = always zero)
+- Fixed 32‑bit instructions
+- Only `lw`/`sw` access memory (load‑store architecture)
+- ALU operations work only on registers
+
+### Memory: Neumann (`neum`)
+- One address space for both code and data (simplicity)
+- Program starts at `0x0000`
+- Interrupt vector table at fixed location (e.g., `0x0010`)
+
+### Control Unit: Hardwired (`hw`)
+- Decoder directly generates control signals (no microcode ROM)
+- Simpler to implement and debug
+
+### Simulation accuracy: Tick (`tick`)
+- CPU state can be inspected after each clock cycle
+- Useful for debugging pipeline/cache effects (though pipeline is not in my variant – cache is)
+
+### Machine code: Binary (`binary`)
+- Real binary files (not text 0/1)
+- Accompanying debug listing shows `address - hexdump - disassembly`
+
+### I/O model: Trap (`trap`)
+- `trap` instruction triggers software interrupt
+- Interrupt handler reads from/writes to memory‑mapped I/O ports
+- Nested interrupts: disabled during handler (simple model)
+
+### I/O addressing: Memory‑mapped (`mem`)
+- Input device at `0xFFFFFFF0` (read char)
+- Output device at `0xFFFFFFF4` (write char)
+- Status registers at `0xFFFFFFF8` (ready bits)
+
+### Strings: C‑style (`cstr`)
+- Zero‑terminated: `"Hello"` → `'H','e','l','l','o',0`
+- String literals placed in `.data` section
+
+### Algorithm: Euler Problem 1 (`prob1`)
+> Find the sum of all multiples of 3 or 5 below 1000.
+- Uses loops, conditionals, arithmetic
+- Input: none; Output: integer result
+
+### Extension: Cache (`cache`)
+- Direct‑mapped data cache, 8 lines, 16 bytes per line
+- Hit = 1 tick, Miss = 10 ticks (memory access latency)
+- Cache behavior logged in simulation trace
+- Demonstrates performance improvement with data locality
+
+## Quick Start
+
+### Requirements
+- Java 21
+- Clojure CLI (or `lein`)
+
+### Build & Run
+```bash
+# Compile a Lisp program to binary
+clj -M -m clause-lang.compile examples/prob1.lisp -o prob1.bin
+
+# Run binary in emulator with input (if any)
+clj -M -m clause-lang.run prob1.bin --trace trace.log
+
+# Run golden tests
+clj -M -m clause-lang.test-runner
