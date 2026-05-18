@@ -33,13 +33,17 @@ This project implements a complete computing system from scratch:
 
 ## Project Structure
 
+```
 clause-lang/
+│
 ├── src/
+│ │
 │ ├── compiler/ # Lisp → machine code translator
 │ │ ├── parser.clj # S‑expression parser
 │ │ ├── ast.clj # AST definitions
 │ │ ├── codegen.clj # Machine code generation
-│ │ └── utils.clj
+│ │ └── utils.clj # Helper utilities
+│ │
 │ ├── vm/ # Processor model
 │ │ ├── cpu.clj # Main CPU loop (tick‑accurate)
 │ │ ├── alu.clj # ALU operations
@@ -47,24 +51,38 @@ clause-lang/
 │ │ ├── memory.clj # Neumann memory (code + data)
 │ │ ├── cache.clj # Data cache implementation
 │ │ ├── trap.clj # Trap / interrupt handling
-│ │ ├── io.clj # Memory‑mapped I/O + character buffers
+│ │ ├── io.clj # Memory‑mapped I/O + buffers
 │ │ └── decoder.clj # Instruction decoder
+│ │
 │ └── cli/ # Command‑line interfaces
-│ ├── compile.clj # Compiler entry point
-│ └── run.clj # Emulator entry point
+│   ├── compile.clj # Compiler entry point
+│   └── run.clj # Emulator entry point
+│
 ├── tests/
-│ ├── golden/ # Golden tests (input + expected output + trace)
-│ │ ├── hello/ # hello world
-│ │ ├── cat/ # cat (echo)
-│ │ ├── hello_name/ # interactive greeting
-│ │ ├── sort/ # sorting demo
-│ │ ├── prob1/ # Euler problem 1 (variant)
-│ │ └── cache_demo/ # cache performance demonstration
-│ └── test_runner.clj
+│ │
+│ ├── golden/ # Golden tests
+│ │ ├── hello # "Hello, World!" test
+│ │ ├── cat # Echo / cat test
+│ │ ├── hello_name # Interactive name greeting
+│ │ ├── sort # Sorting algorithm test
+│ │ ├── prob1 # Euler Problem #1
+│ │ └── cache_demo # Cache performance demo
+│ │
+│ └── test_runner.clj # Test harness / runner
+│
 ├── examples/ # Example Lisp programs
-├── .github/workflows/ # CI configuration
-├── README.md
-└── project.clj # Clojure project file (deps, build)
+│
+├── .github/workflows/ # CI/CD pipelines (lint, test)│
+├── README.md # This file
+└── project.clj # Clojure project dependencies & build
+```
+
+**Legend:**
+- `compiler/` – translates Lisp source → binary machine code
+- `vm/`      – tick‑accurate processor simulator with cache & trap I/O
+- `cli/`     – user‑facing compiler / runner commands
+- `tests/`   – golden tests for all required algorithms
+- `examples/`– sample programs in the Lisp dialect
 
 ## Implementation Status
 
