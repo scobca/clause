@@ -10,8 +10,8 @@
 
 
 ;; Registers
-(def REG-COUNT 16)                                          ; r0-r15, r0 is always zero
-(def LINK-REGISTER 15)                                      ; r15 is used as link register for jal
+(def REG-COUNT 32)                                          ; r0-r31, r0 is always zero
+(def LINK-REGISTER 31)                                      ; r31 is used as link register for jal
 
 
 ;; Instruction encoding
