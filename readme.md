@@ -41,8 +41,9 @@ clause-lang/
 │ ├── compiler/ # Lisp → machine code translator
 │ │
 │ ├── vm/ # Processor model
-│ │ ├── opcodes.clj # CPU operation codes
-│ │ └── constants.clj # Memory addresses, sizes, timings
+│ │ ├── opcodes.clj     # CPU operation codes
+│ │ ├── isa.clj         # Instruction Set Architecture (instruction encoders, decoders, etc.)
+│ │ └── constants.clj   # Memory addresses, sizes, timings
 │ │
 │ └── cli/ # Command‑line interfaces
 │
