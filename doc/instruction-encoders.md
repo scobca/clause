@@ -176,6 +176,95 @@
 ---
 
 ---
-## Instruction decoders
+## Instruction decoder
 
-> Will be soon...
+### Decoder overview
+
+`decode` takes a 32-bit instruction and extracts its fields. It's the inverse of encoding:
+
+```
+encode: [op, a, b, c] → 0x12345678 (packed)
+decode: 0x12345678 → {:op :add, :rd 1, :rs 2, :rt 3} (unpacked)
+```
+
+### Decoding function
+
+```clojure
+(defn decode
+
+  "Decode a 32-bit instruction into a human-readable map structure.
+   
+   The function works in two steps:
+     1. Extract the 5-bit opcode from bits 31-27
+     2. Based on the instruction type, extract the appropriate fields
+   
+   Returns a map containing:
+     - :op     - instruction mnemonic (:add, :lw, :beq, etc.)
+     - fields  - depending on instruction type (rd/rs/rt, a/b/imm, addr, etc.)
+   
+   Example:
+     (decode 0x08C15000)  ; returns {:op :add, :rd 1, :rs 2, :rt 3}
+   "
+  
+  [instr]
+  (let [opcode (bit-shift-right instr OPCODE-SHIFT)        ; grab first 5 bits (31-27)
+        mnemonic (get opcode->mnemonic opcode)]            ; map number → mnemonic (e.g., 1 → :add)
+
+    (case mnemonic
+      ;; ============================================================
+      ;; R-type instructions (register-to-register)
+      ;; Format: [op][rd][rs][rt][unused:12]
+      ;; ============================================================
+      (:add :sub :mul :div :and :or :xor)
+      {:op mnemonic
+       :rd (bit-and (bit-shift-right instr 22) 0x1F)       ; bits 26-22 → destination register
+       :rs (bit-and (bit-shift-right instr 17) 0x1F)       ; bits 21-17 → first source register
+       :rt (bit-and (bit-shift-right instr 12) 0x1F)}      ; bits 16-12 → second source register
+
+      ;; ============================================================
+      ;; I-type instructions: Load / Store
+      ;; Format: [op][a][b][imm:17]
+      ;; ============================================================
+      (:lw :sw)
+      {:op mnemonic
+       :a (bit-and (bit-shift-right instr 22) 0x1F)        ; bits 26-22 → register a
+       :b (bit-and (bit-shift-right instr 17) 0x1F)        ; bits 21-17 → register b
+       :imm (bit-and instr 0x1FFFF)}                       ; bits 16-0 → immediate value
+
+      ;; ============================================================
+      ;; I-type instructions: Conditional branches
+      ;; Format: [op][rs][rt][offset:17]
+      ;; ============================================================
+      (:beq :bne :blt :bgt :ble :bge :bltz :bgtz)
+      {:op mnemonic
+       :rs (bit-and (bit-shift-right instr 22) 0x1F)       ; bits 26-22 → first register
+       :rt (bit-and (bit-shift-right instr 17) 0x1F)       ; bits 21-17 → second register
+       :offset (bit-and instr 0x1FFFF)}                    ; bits 16-0 → branch offset
+
+      ;; ============================================================
+      ;; J-type instructions: Unconditional jumps
+      ;; Format: [op][addr:27]
+      ;; ============================================================
+      (:j :jal)
+      {:op mnemonic
+       :addr (bit-and instr 0x7FFFFFF)}                    ; bits 26-0 → target address
+
+      ;; ============================================================
+      ;; Trap instruction (system call)
+      ;; Format: [op][code:27]
+      ;; ============================================================
+      (:trap)
+      {:op mnemonic
+       :code (bit-and instr 0x7FFFFFF)}                    ; bits 26-0 → trap code
+
+      ;; ============================================================
+      ;; No-operation and Halt (no extra fields)
+      ;; ============================================================
+      (:hlt :nop)
+      {:op mnemonic}
+
+      ;; ============================================================
+      ;; Unknown instruction (should never happen in valid code)
+      ;; ============================================================
+      {:op :unknown :instr instr})))
+```
