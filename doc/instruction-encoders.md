@@ -68,9 +68,6 @@
 
   Returns:
     32-bit integer instruction
-
-  Example:
-    (encode-r-type :add 1 2 3)  ; adds reg2 and reg3, stores in reg1
   "
   
   [op rd rs rt]
@@ -115,11 +112,6 @@
    
    Returns:
      32-bit integer instruction
-   
-   Examples:
-     (encode-i-type :lw 1 2 100)    ; load reg1 from mem[reg2 + 100]
-     (encode-i-type :addi 1 2 42)   ; reg1 = reg2 + 42
-     (encode-i-type :beq 1 2 16)    ; if (reg1 == reg2) skip 4 instructions
    "
   
   [op a b imm]
@@ -160,10 +152,6 @@
    
    Returns:
      32-bit integer instruction
-   
-   Examples:
-     (encode-j-type :j 0x1000)     ; jump to address 0x1000
-     (encode-j-type :jal 0x2000)   ; jump and link to address 0x2000
    "
 
   [op addr]
@@ -201,9 +189,6 @@ decode: 0x12345678 → {:op :add, :rd 1, :rs 2, :rt 3} (unpacked)
    Returns a map containing:
      - :op     - instruction mnemonic (:add, :lw, :beq, etc.)
      - fields  - depending on instruction type (rd/rs/rt, a/b/imm, addr, etc.)
-   
-   Example:
-     (decode 0x08C15000)  ; returns {:op :add, :rd 1, :rs 2, :rt 3}
    "
   
   [instr]
