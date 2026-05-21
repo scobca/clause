@@ -33,7 +33,7 @@ This project implements a complete computing system from scratch:
 - CI with linting and formatting (ruff/mypy equivalent for Clojure: `cljstyle`, `clj-kondo`)
 
 ## Useful documentation
-- **[Instructions & Instruction encoders, decoders](doc/instruction-encoders.md)**
+- **[Instructions & Instruction encoders, decoders](doc/instructions-workers.md)**
 
 ## Project Structure
 
