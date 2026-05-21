@@ -1,6 +1,7 @@
 (ns vm.isa
   [:require [vm.opcodes :refer [opcodes opcode->mnemonic]]]
-  [:require [vm.constants :refer [OPCODE-SHIFT MASK-5BIT MASK-17BIT MASK-27BIT]]])
+  [:require [vm.constants :refer [OPCODE-SHIFT MASK-5BIT MASK-17BIT MASK-27BIT]]]
+  [:require [vm.utils :refer [sign-extend-17bit]]])
 
 
 ;; R-type: [op:5][rd:5][rs:5][rt:5][unused:12]
@@ -30,43 +31,44 @@
 
 ;; Instruction decoder
 (defn decode [instr]
-  (let [opcode (bit-shift-right instr OPCODE-SHIFT)         ; get opcode mnemonic
+  (let [opcode (bit-shift-right instr OPCODE-SHIFT)
         mnemonic (get opcode->mnemonic opcode)]
-
     (case mnemonic
-      (:add :sub :mul :div :and :or :xor)                   ; R-type instructions
+
+      ;; R-type instructions
+      (:add :sub :mul :div :and :or :xor)
       {:op mnemonic
        :rd (bit-and (bit-shift-right instr 22) MASK-5BIT)
        :rs (bit-and (bit-shift-right instr 17) MASK-5BIT)
        :rt (bit-and (bit-shift-right instr 12) MASK-5BIT)}
 
-
-      (:lw :sw)                                             ; I-type instructions
+      ;; I-type: Load / Store — immediate is SIGNED
+      (:lw :sw)
       {:op  mnemonic
        :a   (bit-and (bit-shift-right instr 22) MASK-5BIT)
        :b   (bit-and (bit-shift-right instr 17) MASK-5BIT)
-       :imm (bit-and instr MASK-17BIT)}
+       :imm (sign-extend-17bit (bit-and instr MASK-17BIT))}
 
-
-      (:beq :bne :blt :bgt :ble :bge :bltz :bgtz)           ; I-type branch instructions
+      ;; I-type: Conditional branches — offset is SIGNED
+      (:beq :bne :blt :bgt :ble :bge :bltz :bgtz)
       {:op     mnemonic
        :rs     (bit-and (bit-shift-right instr 22) MASK-5BIT)
        :rt     (bit-and (bit-shift-right instr 17) MASK-5BIT)
-       :offset (bit-and instr MASK-17BIT)}
+       :offset (sign-extend-17bit (bit-and instr MASK-17BIT))}
 
-
-      (:j :jal)                                             ; J-type instructions
+      ;; J-type: Unconditional jumps — addr is UNSIGNED
+      (:j :jal)
       {:op   mnemonic
        :addr (bit-and instr MASK-27BIT)}
 
-
-      (:trap)                                               ; J-type trap instructions
+      ;; Trap instruction — code is UNSIGNED
+      (:trap)
       {:op   mnemonic
        :code (bit-and instr MASK-27BIT)}
 
-
-      (:hlt :nop)                                           ; halt & no operation
+      ;; No-operation and Halt
+      (:hlt :nop)
       {:op mnemonic}
 
-
-      {:op :unknown :instr instr})))                        ; unknown instruction
+      ;; Unknown instruction
+      {:op :unknown :instr instr})))
