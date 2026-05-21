@@ -209,26 +209,29 @@ decode: 0x12345678 → {:op :add, :rd 1, :rs 2, :rt 3} (unpacked)
       ;; ============================================================
       ;; I-type instructions: Load / Store
       ;; Format: [op][a][b][imm:17]
+      ;; SIGNED
       ;; ============================================================
       (:lw :sw)
       {:op mnemonic
        :a (bit-and (bit-shift-right instr 22) 0x1F)        ; bits 26-22 → register a
        :b (bit-and (bit-shift-right instr 17) 0x1F)        ; bits 21-17 → register b
-       :imm (bit-and instr 0x1FFFF)}                       ; bits 16-0 → immediate value
+       :imm (sign-extend-17bit (bit-and instr 0x1FFFF))}                       ; bits 16-0 → immediate value
 
       ;; ============================================================
       ;; I-type instructions: Conditional branches
       ;; Format: [op][rs][rt][offset:17]
+      ;; SIGNED
       ;; ============================================================
       (:beq :bne :blt :bgt :ble :bge :bltz :bgtz)
       {:op mnemonic
        :rs (bit-and (bit-shift-right instr 22) 0x1F)       ; bits 26-22 → first register
        :rt (bit-and (bit-shift-right instr 17) 0x1F)       ; bits 21-17 → second register
-       :offset (bit-and instr 0x1FFFF)}                    ; bits 16-0 → branch offset
+       :offset (sign-extend-17bit (bit-and instr 0x1FFFF))}                    ; bits 16-0 → branch offset
 
       ;; ============================================================
       ;; J-type instructions: Unconditional jumps
       ;; Format: [op][addr:27]
+      ;; UNSIGNED
       ;; ============================================================
       (:j :jal)
       {:op mnemonic
@@ -237,6 +240,7 @@ decode: 0x12345678 → {:op :add, :rd 1, :rs 2, :rt 3} (unpacked)
       ;; ============================================================
       ;; Trap instruction (system call)
       ;; Format: [op][code:27]
+      ;; UNSIGNED
       ;; ============================================================
       (:trap)
       {:op mnemonic
