@@ -19,6 +19,12 @@
 (def OPCODE-SHIFT 27)                                       ; 32 - 5 = 27 (shift amount for encoding)
 
 
+;; Bit masks for instruction decoding
+(def MASK-5BIT 0x1F)                                        ; 5-bit mask (11111) for registers
+(def MASK-17BIT 0x1FFFF)                                    ; 17-bit mask for immediate/offset
+(def MASK-27BIT 0x7FFFFFF)                                  ; 27-bit mask for address/trap code
+
+
 ;; Special addresses for memory-mapped I/O
 (def IO-READ-ADDR 0xFFFFFFF0)                               ; reading a character
 (def IO-WRITE-ADDR 0xFFFFFFF4)                              ; writing a character
